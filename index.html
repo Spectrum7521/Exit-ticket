@@ -206,7 +206,7 @@
 
   .op-grid{
     display:grid;
-    grid-template-columns:repeat(3, 1fr);
+    grid-template-columns:repeat(2, 1fr);
     gap:10px;
   }
   .op-chip{
@@ -317,7 +317,6 @@
   :focus-visible{ outline:2px solid var(--chalk-yellow); outline-offset:2px; }
 
   @media (max-width:480px){
-    .op-grid{ grid-template-columns:repeat(2, 1fr); }
     .board{ padding:22px 18px 20px; }
     .paper-body{ padding:18px 18px 26px; }
     .board-text h1{ font-size:1.35rem; }
@@ -505,16 +504,14 @@
     }
   ];
 
-  const OP_ORDER = ['union','intersect','aMinusB','bMinusA','compA','compB'];
+  const OP_ORDER = ['union','intersect','aMinusB','bMinusA'];
 
   function buildOps(universe,A,B){
     return [
       {key:'union',    sym:'A ∪ B', name:'ยูเนียนของ A และ B',      value: universe.filter(x=>A.includes(x)||B.includes(x))},
       {key:'intersect',sym:'A ∩ B', name:'อินเตอร์เซกชันของ A และ B', value: universe.filter(x=>A.includes(x)&&B.includes(x))},
       {key:'aMinusB',  sym:'A − B', name:'ผลต่าง A ลบ B',            value: universe.filter(x=>A.includes(x)&&!B.includes(x))},
-      {key:'bMinusA',  sym:'B − A', name:'ผลต่าง B ลบ A',            value: universe.filter(x=>B.includes(x)&&!A.includes(x))},
-      {key:'compA',    sym:'A′',    name:'คอมพลีเมนต์ของ A',         value: universe.filter(x=>!A.includes(x))},
-      {key:'compB',    sym:'B′',    name:'คอมพลีเมนต์ของ B',         value: universe.filter(x=>!B.includes(x))}
+      {key:'bMinusA',  sym:'B − A', name:'ผลต่าง B ลบ A',            value: universe.filter(x=>B.includes(x)&&!A.includes(x))}
     ];
   }
 
@@ -554,10 +551,6 @@
         return `สมาชิกทุกตัวในผลลัพธ์ ${r} อยู่ใน A แต่ไม่อยู่ใน B เลยแม้แต่ตัวเดียว — ตรงกับความหมายของ A − B`;
       case 'bMinusA':
         return `สมาชิกทุกตัวในผลลัพธ์ ${r} อยู่ใน B แต่ไม่อยู่ใน A เลยแม้แต่ตัวเดียว — ตรงกับความหมายของ B − A`;
-      case 'compA':
-        return `สมาชิกทุกตัวในผลลัพธ์ ${r} อยู่ใน U แต่ไม่ใช่สมาชิกของ A แม้แต่ตัวเดียว — ตรงกับความหมายของ A′`;
-      case 'compB':
-        return `สมาชิกทุกตัวในผลลัพธ์ ${r} อยู่ใน U แต่ไม่ใช่สมาชิกของ B แม้แต่ตัวเดียว — ตรงกับความหมายของ B′`;
     }
     return '';
   }
