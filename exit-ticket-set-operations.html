@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exit Ticket: การดำเนินการของเซต</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Taviraj:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap');
+
+  :root{
+    --page-bg:#ECE7D8;
+    --paper:#FBF8F1;
+    --board:#1F3B33;
+    --board-dark:#16281F;
+    --chalk:#F5EFD9;
+    --chalk-yellow:#E8B93D;
+    --ink:#1E2D24;
+    --muted-ink:#63705F;
+    --line:#DCD5C0;
+    --chip-bg:#FFFFFF;
+    --chip-border:#CFC7AA;
+    --correct:#2F9E56;
+    --correct-bg:#EAF7EE;
+    --wrong:#C4472B;
+    --wrong-bg:#FBEAE5;
+    --result-bg:#FFF6DE;
+    --result-border:#E8B93D;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    padding:28px 14px;
+    background:var(--page-bg);
+    font-family:'Sarabun',sans-serif;
+    color:var(--ink);
+    display:flex;
+    justify-content:center;
+  }
+
+  .sheet{
+    width:100%;
+    max-width:660px;
+    background:var(--paper);
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 14px 34px rgba(22,40,31,0.16);
+  }
+
+  /* ---------- Header / chalkboard band ---------- */
+  .board{
+    background:linear-gradient(160deg, var(--board), var(--board-dark));
+    color:var(--chalk);
+    padding:26px 26px 22px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .board-text h1{
+    font-family:'Taviraj',serif;
+    font-weight:600;
+    font-size:1.55rem;
+    margin:0 0 6px;
+    letter-spacing:0.2px;
+  }
+  .board-text p{
+    margin:0;
+    font-size:0.92rem;
+    line-height:1.6;
+    color:#DCE7DE;
+    max-width:38ch;
+  }
+  .shuffle-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:var(--chalk-yellow);
+    color:var(--board-dark);
+    border:none;
+    border-radius:999px;
+    padding:10px 18px;
+    font-family:'Sarabun',sans-serif;
+    font-weight:600;
+    font-size:0.92rem;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow:0 4px 0 rgba(0,0,0,0.18);
+  }
+  .shuffle-btn:hover{ transform:translateY(-1px); }
+  .shuffle-btn:active{ transform:translateY(2px); box-shadow:0 2px 0 rgba(0,0,0,0.18); }
+  .shuffle-btn svg{ width:16px; height:16px; }
+
+  /* ---------- Name / date row ---------- */
+  .id-row{
+    display:flex;
+    gap:16px;
+    padding:16px 26px 0;
+    flex-wrap:wrap;
+  }
+  .id-field{
+    flex:1 1 180px;
+  }
+  .id-field label{
+    display:block;
+    font-size:0.78rem;
+    color:var(--muted-ink);
+    margin-bottom:4px;
+  }
+  .id-field input{
+    width:100%;
+    border:none;
+    border-bottom:1.5px solid var(--line);
+    background:transparent;
+    padding:4px 2px 6px;
+    font-family:'Sarabun',sans-serif;
+    font-size:0.95rem;
+    color:var(--ink);
+  }
+  .id-field input:focus{
+    outline:none;
+    border-bottom-color:var(--chalk-yellow);
+  }
+
+  /* ---------- Body / paper ---------- */
+  .paper-body{
+    padding:22px 26px 30px;
+  }
+
+  .section{ margin-bottom:22px; }
+  .section-label{
+    font-size:0.95rem;
+    font-weight:600;
+    color:var(--board);
+    margin:0 0 8px;
+  }
+
+  .scenario-text{
+    margin:0;
+    font-size:1rem;
+    line-height:1.75;
+  }
+
+  .given-block{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:16px 18px;
+  }
+  .given-row{ margin-bottom:14px; }
+  .given-row:last-child{ margin-bottom:0; }
+  .given-row-title{
+    font-size:0.88rem;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:6px;
+  }
+  .given-row-title .tag{
+    display:inline-block;
+    font-family:'Taviraj',serif;
+    font-weight:600;
+    color:var(--board);
+    margin-right:6px;
+  }
+  .caption{
+    font-size:0.78rem;
+    color:var(--muted-ink);
+    margin-top:6px;
+  }
+
+  .chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+  }
+  .chip{
+    background:var(--chip-bg);
+    border:1px solid var(--chip-border);
+    border-radius:8px;
+    padding:5px 11px;
+    font-size:0.92rem;
+    line-height:1.3;
+  }
+
+  .result-box{
+    background:var(--result-bg);
+    border-left:5px solid var(--result-border);
+    border-radius:10px;
+    padding:16px 18px;
+  }
+  .result-box .chip{
+    background:#fff;
+    border-color:#E9D48C;
+    font-family:'Taviraj',serif;
+    font-weight:600;
+  }
+
+  .prompt-text{
+    font-size:1rem;
+    line-height:1.7;
+    margin:0 0 14px;
+  }
+
+  .op-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:10px;
+  }
+  .op-chip{
+    background:#fff;
+    border:1.5px solid var(--chip-border);
+    border-radius:12px;
+    padding:14px 8px 12px;
+    text-align:center;
+    cursor:pointer;
+    transition:transform 0.12s ease, background 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+    font-family:'Sarabun',sans-serif;
+  }
+  .op-chip .sym{
+    display:block;
+    font-family:'Taviraj',serif;
+    font-weight:600;
+    font-size:1.35rem;
+    color:var(--board);
+    margin-bottom:4px;
+  }
+  .op-chip .lbl{
+    display:block;
+    font-size:0.74rem;
+    color:var(--muted-ink);
+    line-height:1.4;
+  }
+  .op-chip:hover{ border-color:var(--chalk-yellow); }
+  .op-chip.selected{
+    background:var(--chalk-yellow);
+    border-color:var(--chalk-yellow);
+    transform:translateY(-2px);
+    box-shadow:0 6px 0 rgba(232,185,61,0.35);
+  }
+  .op-chip.selected .sym,
+  .op-chip.selected .lbl{ color:var(--board-dark); }
+
+  textarea{
+    width:100%;
+    min-height:82px;
+    resize:vertical;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px 14px;
+    font-family:'Sarabun',sans-serif;
+    font-size:0.95rem;
+    color:var(--ink);
+    background:#fff;
+    line-height:1.6;
+  }
+  textarea:focus{
+    outline:2px solid var(--chalk-yellow);
+    outline-offset:1px;
+    border-color:transparent;
+  }
+
+  .submit-row{
+    display:flex;
+    justify-content:flex-end;
+    margin-top:16px;
+  }
+  .submit-btn{
+    background:var(--board);
+    color:var(--chalk);
+    border:none;
+    border-radius:999px;
+    padding:11px 26px;
+    font-family:'Sarabun',sans-serif;
+    font-weight:600;
+    font-size:0.95rem;
+    cursor:pointer;
+    transition:opacity 0.15s ease, transform 0.15s ease;
+  }
+  .submit-btn:disabled{
+    opacity:0.4;
+    cursor:not-allowed;
+  }
+  .submit-btn:not(:disabled):hover{ transform:translateY(-1px); }
+
+  .feedback{
+    margin-top:18px;
+    border-radius:12px;
+    padding:16px 18px;
+    border-left:5px solid transparent;
+    display:none;
+  }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--correct-bg); border-left-color:var(--correct); }
+  .feedback.wrong{ background:var(--wrong-bg); border-left-color:var(--wrong); }
+  .feedback-title{
+    font-weight:700;
+    font-size:1rem;
+    margin:0 0 8px;
+  }
+  .feedback.correct .feedback-title{ color:var(--correct); }
+  .feedback.wrong .feedback-title{ color:var(--wrong); }
+  .feedback p{
+    margin:0 0 8px;
+    font-size:0.93rem;
+    line-height:1.65;
+    color:var(--ink);
+  }
+  .feedback p:last-child{ margin-bottom:0; }
+  .feedback .hint-line{
+    color:var(--muted-ink);
+    font-size:0.85rem;
+  }
+
+  :focus-visible{ outline:2px solid var(--chalk-yellow); outline-offset:2px; }
+
+  @media (max-width:480px){
+    .op-grid{ grid-template-columns:repeat(2, 1fr); }
+    .board{ padding:22px 18px 20px; }
+    .paper-body{ padding:18px 18px 26px; }
+    .board-text h1{ font-size:1.35rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <div class="board">
+    <div class="board-text">
+      <h1>Exit Ticket: การดำเนินการของเซต</h1>
+      <p>อ่านสถานการณ์ ดูผลลัพธ์ที่กำหนด แล้วเลือกว่าเกิดจากการดำเนินการใดของเซต พร้อมอธิบายเหตุผล</p>
+    </div>
+    <button class="shuffle-btn" id="newPuzzleBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+      สุ่มโจทย์ใหม่
+    </button>
+  </div>
+
+  <div class="id-row">
+    <div class="id-field">
+      <label for="studentName">ชื่อ-นามสกุล</label>
+      <input type="text" id="studentName" placeholder="................................">
+    </div>
+    <div class="id-field">
+      <label for="studentClass">ชั้น / เลขที่</label>
+      <input type="text" id="studentClass" placeholder="................................">
+    </div>
+  </div>
+
+  <div class="paper-body">
+
+    <div class="section">
+      <p class="section-label">สถานการณ์</p>
+      <p class="scenario-text" id="scenarioText"></p>
+    </div>
+
+    <div class="section">
+      <p class="section-label">ข้อมูลที่กำหนด</p>
+      <div class="given-block">
+        <div class="given-row">
+          <div class="given-row-title"><span class="tag">U</span>เอกภพสัมพัทธ์</div>
+          <div class="chips" id="universeChips"></div>
+          <p class="caption" id="universeCaption"></p>
+        </div>
+        <div class="given-row">
+          <div class="given-row-title"><span class="tag">A</span><span id="aLabelText"></span></div>
+          <div class="chips" id="aChips"></div>
+        </div>
+        <div class="given-row">
+          <div class="given-row-title"><span class="tag">B</span><span id="bLabelText"></span></div>
+          <div class="chips" id="bChips"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <p class="section-label">ผลลัพธ์ที่ได้จากการดำเนินการ</p>
+      <div class="result-box">
+        <div class="chips" id="resultChips"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <p class="prompt-text">ผลลัพธ์ข้างต้นเกิดจากการดำเนินการใดระหว่างเซต A และเซต B</p>
+      <div class="op-grid" id="opGrid"></div>
+    </div>
+
+    <div class="section">
+      <p class="section-label">อธิบายเหตุผลของคุณ</p>
+      <textarea id="reasonText" placeholder="เพราะสมาชิกในผลลัพธ์แต่ละตัว...( อยู่ใน A / อยู่ใน B / ไม่อยู่ใน... ) จึงตรงกับการดำเนินการนี้"></textarea>
+    </div>
+
+    <div class="submit-row">
+      <button class="submit-btn" id="submitBtn" disabled type="button">ตรวจคำตอบ</button>
+    </div>
+
+    <div class="feedback" id="feedbackPanel">
+      <p class="feedback-title" id="feedbackTitle"></p>
+      <p id="feedbackAnswer"></p>
+      <p id="feedbackExplain"></p>
+      <p class="hint-line" id="feedbackHint"></p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+
+  function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+  function sampleFrom(universe,minN,maxN){
+    const n = Math.max(1, Math.min(universe.length, randInt(minN,maxN)));
+    const chosen = new Set(shuffle(universe).slice(0,n));
+    return universe.filter(x=>chosen.has(x));
+  }
+  function formatSet(arr){
+    return arr.length ? '{ ' + arr.join(', ') + ' }' : '∅ (เซตว่าง)';
+  }
+
+  const FRUITS = ['มะม่วง','กล้วย','ส้ม','แอปเปิล','สับปะรด','แตงโม','มังคุด','ลำไย','เงาะ','ฝรั่ง','ชมพู่','มะละกอ'];
+  const N_OPTIONS = [15,16,18,20,21,24];
+  const DIVISOR_PAIRS = [[2,3],[2,5],[3,4],[2,4],[3,5]];
+
+  const TEMPLATES = [
+    // classroom
+    function(){
+      const sizeU = randInt(11,16);
+      const universe = Array.from({length:sizeU},(_,i)=>i+1);
+      return {
+        context: `ครูสำรวจนักเรียนห้อง ม.4/2 ทั้งหมด ${sizeU} คน (เลขที่ 1 ถึง ${sizeU}) ว่าชอบวิชาใดบ้าง`,
+        aLabel: 'นักเรียนที่ชอบวิชาคณิตศาสตร์',
+        bLabel: 'นักเรียนที่ชอบวิชาภาษาอังกฤษ',
+        unitNote: 'แต่ละหมายเลขแทนเลขที่ของนักเรียน',
+        universe,
+        A: sampleFrom(universe,3,Math.ceil(sizeU*0.65)),
+        B: sampleFrom(universe,3,Math.ceil(sizeU*0.65))
+      };
+    },
+    // milk tea shop
+    function(){
+      const sizeU = randInt(10,14);
+      const universe = Array.from({length:sizeU},(_,i)=>i+1);
+      return {
+        context: `ร้านชานมไข่มุกแห่งหนึ่งบันทึกออเดอร์ลูกค้า ${sizeU} คนในช่วงเย็นวันหนึ่ง (รหัสลูกค้า 1 ถึง ${sizeU})`,
+        aLabel: 'ลูกค้าที่สั่งท็อปปิ้งไข่มุก',
+        bLabel: 'ลูกค้าที่สั่งท็อปปิ้งวุ้นมะพร้าว',
+        unitNote: 'แต่ละหมายเลขแทนรหัสลูกค้า',
+        universe,
+        A: sampleFrom(universe,3,Math.ceil(sizeU*0.6)),
+        B: sampleFrom(universe,3,Math.ceil(sizeU*0.6))
+      };
+    },
+    // school club
+    function(){
+      const sizeU = randInt(12,18);
+      const universe = Array.from({length:sizeU},(_,i)=>i+1);
+      return {
+        context: `โรงเรียนแห่งหนึ่งเปิดให้นักเรียน ${sizeU} คน (เลขที่ 1 ถึง ${sizeU}) เลือกเข้าร่วมชมรมกิจกรรมพัฒนาผู้เรียน`,
+        aLabel: 'นักเรียนที่เข้าร่วมชมรมดนตรี',
+        bLabel: 'นักเรียนที่เข้าร่วมชมรมกีฬา',
+        unitNote: 'แต่ละหมายเลขแทนเลขที่ของนักเรียน',
+        universe,
+        A: sampleFrom(universe,3,Math.ceil(sizeU*0.6)),
+        B: sampleFrom(universe,3,Math.ceil(sizeU*0.6))
+      };
+    },
+    // fruit shop
+    function(){
+      const sizeU = randInt(9,12);
+      const universe = shuffle(FRUITS).slice(0,sizeU);
+      return {
+        context: `ร้านผลไม้ปั่นแห่งหนึ่งสำรวจความเห็นลูกค้าเกี่ยวกับผลไม้ ${sizeU} ชนิดที่มีขายในร้าน`,
+        aLabel: 'ผลไม้ที่ลูกค้าโหวตว่า "อร่อยที่สุด"',
+        bLabel: 'ผลไม้ที่ร้านระบุว่า "มีของสดวันนี้"',
+        unitNote: 'แต่ละรายการคือชนิดของผลไม้',
+        universe,
+        A: sampleFrom(universe,3,Math.min(7,universe.length-1)),
+        B: sampleFrom(universe,3,Math.min(7,universe.length-1))
+      };
+    },
+    // number divisibility
+    function(){
+      const n = N_OPTIONS[randInt(0,N_OPTIONS.length-1)];
+      const [d1,d2] = DIVISOR_PAIRS[randInt(0,DIVISOR_PAIRS.length-1)];
+      const universe = Array.from({length:n},(_,i)=>i+1);
+      return {
+        context: `กำหนดเอกภพสัมพัทธ์ U แทนจำนวนเต็มบวกตั้งแต่ 1 ถึง ${n}`,
+        aLabel: `จำนวนที่หารด้วย ${d1} ลงตัว`,
+        bLabel: `จำนวนที่หารด้วย ${d2} ลงตัว`,
+        unitNote: 'แต่ละสมาชิกคือจำนวนเต็มบวกในช่วงที่กำหนด',
+        universe,
+        A: universe.filter(x=>x%d1===0),
+        B: universe.filter(x=>x%d2===0)
+      };
+    }
+  ];
+
+  const OP_ORDER = ['union','intersect','aMinusB','bMinusA','compA','compB'];
+
+  function buildOps(universe,A,B){
+    return [
+      {key:'union',    sym:'A ∪ B', name:'ยูเนียนของ A และ B',      value: universe.filter(x=>A.includes(x)||B.includes(x))},
+      {key:'intersect',sym:'A ∩ B', name:'อินเตอร์เซกชันของ A และ B', value: universe.filter(x=>A.includes(x)&&B.includes(x))},
+      {key:'aMinusB',  sym:'A − B', name:'ผลต่าง A ลบ B',            value: universe.filter(x=>A.includes(x)&&!B.includes(x))},
+      {key:'bMinusA',  sym:'B − A', name:'ผลต่าง B ลบ A',            value: universe.filter(x=>B.includes(x)&&!A.includes(x))},
+      {key:'compA',    sym:'A′',    name:'คอมพลีเมนต์ของ A',         value: universe.filter(x=>!A.includes(x))},
+      {key:'compB',    sym:'B′',    name:'คอมพลีเมนต์ของ B',         value: universe.filter(x=>!B.includes(x))}
+    ];
+  }
+
+  function buildPuzzle(){
+    for(let attempt=0; attempt<60; attempt++){
+      const tpl = TEMPLATES[randInt(0,TEMPLATES.length-1)];
+      const base = tpl();
+      const { universe, A, B } = base;
+      const ops = buildOps(universe,A,B);
+      const sig = v => v.join('|');
+      const counts = {};
+      ops.forEach(o=>{ const s = sig(o.value); counts[s] = (counts[s]||0)+1; });
+
+      let candidates = ops.filter(o => counts[sig(o.value)]===1 && o.value.length>0 && o.value.length<universe.length);
+      if(candidates.length===0){
+        candidates = ops.filter(o => counts[sig(o.value)]===1 && o.value.length>0);
+      }
+      if(candidates.length===0) continue;
+
+      const correct = candidates[randInt(0,candidates.length-1)];
+      return { ...base, ops, correctKey: correct.key, resultValue: correct.value };
+    }
+    // extremely unlikely fallback
+    const base = TEMPLATES[0]();
+    const ops = buildOps(base.universe, base.A, base.B);
+    return { ...base, ops, correctKey:'union', resultValue: ops[0].value };
+  }
+
+  function explainFor(key, resultValue){
+    const r = formatSet(resultValue);
+    switch(key){
+      case 'union':
+        return `สมาชิกทุกตัวในผลลัพธ์ ${r} อยู่ใน A หรือ B อย่างน้อยหนึ่งเซต และมีครบทุกสมาชิกที่อยู่ใน A หรือ B — ตรงกับความหมายของ A ∪ B`;
+      case 'intersect':
+        return `สมาชิกทุกตัวในผลลัพธ์ ${r} อยู่ทั้งใน A และ B พร้อมกัน — ตรงกับความหมายของ A ∩ B`;
+      case 'aMinusB':
+        return `สมาชิกทุกตัวในผลลัพธ์ ${r} อยู่ใน A แต่ไม่อยู่ใน B เลยแม้แต่ตัวเดียว — ตรงกับความหมายของ A − B`;
+      case 'bMinusA':
+        return `สมาชิกทุกตัวในผลลัพธ์ ${r} อยู่ใน B แต่ไม่อยู่ใน A เลยแม้แต่ตัวเดียว — ตรงกับความหมายของ B − A`;
+      case 'compA':
+        return `สมาชิกทุกตัวในผลลัพธ์ ${r} อยู่ใน U แต่ไม่ใช่สมาชิกของ A แม้แต่ตัวเดียว — ตรงกับความหมายของ A′`;
+      case 'compB':
+        return `สมาชิกทุกตัวในผลลัพธ์ ${r} อยู่ใน U แต่ไม่ใช่สมาชิกของ B แม้แต่ตัวเดียว — ตรงกับความหมายของ B′`;
+    }
+    return '';
+  }
+
+  // ---------- DOM refs ----------
+  const scenarioText   = document.getElementById('scenarioText');
+  const universeChips  = document.getElementById('universeChips');
+  const universeCaption= document.getElementById('universeCaption');
+  const aLabelText     = document.getElementById('aLabelText');
+  const bLabelText     = document.getElementById('bLabelText');
+  const aChips         = document.getElementById('aChips');
+  const bChips         = document.getElementById('bChips');
+  const resultChips    = document.getElementById('resultChips');
+  const opGrid         = document.getElementById('opGrid');
+  const reasonText     = document.getElementById('reasonText');
+  const submitBtn      = document.getElementById('submitBtn');
+  const feedbackPanel  = document.getElementById('feedbackPanel');
+  const feedbackTitle  = document.getElementById('feedbackTitle');
+  const feedbackAnswer = document.getElementById('feedbackAnswer');
+  const feedbackExplain= document.getElementById('feedbackExplain');
+  const feedbackHint   = document.getElementById('feedbackHint');
+  const newPuzzleBtn   = document.getElementById('newPuzzleBtn');
+
+  let current = null;
+  let selectedKey = null;
+
+  function renderChipsInto(container, arr){
+    container.innerHTML = '';
+    if(arr.length===0){
+      const span = document.createElement('span');
+      span.className = 'chip';
+      span.textContent = '∅';
+      container.appendChild(span);
+      return;
+    }
+    arr.forEach(v=>{
+      const span = document.createElement('span');
+      span.className = 'chip';
+      span.textContent = v;
+      container.appendChild(span);
+    });
+  }
+
+  function render(puzzle){
+    scenarioText.textContent = puzzle.context;
+    renderChipsInto(universeChips, puzzle.universe);
+    universeCaption.textContent = puzzle.unitNote || '';
+    aLabelText.textContent = puzzle.aLabel;
+    bLabelText.textContent = puzzle.bLabel;
+    renderChipsInto(aChips, puzzle.A);
+    renderChipsInto(bChips, puzzle.B);
+    renderChipsInto(resultChips, puzzle.resultValue);
+
+    opGrid.innerHTML = '';
+    OP_ORDER.forEach(key=>{
+      const op = puzzle.ops.find(o=>o.key===key);
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'op-chip';
+      btn.dataset.key = key;
+      btn.innerHTML = `<span class="sym">${op.sym}</span><span class="lbl">${op.name}</span>`;
+      btn.addEventListener('click', ()=> selectOp(key));
+      opGrid.appendChild(btn);
+    });
+
+    selectedKey = null;
+    submitBtn.disabled = true;
+    reasonText.value = '';
+    feedbackPanel.classList.remove('show','correct','wrong');
+  }
+
+  function selectOp(key){
+    selectedKey = key;
+    Array.from(opGrid.children).forEach(btn=>{
+      btn.classList.toggle('selected', btn.dataset.key===key);
+    });
+    submitBtn.disabled = false;
+  }
+
+  function checkAnswer(){
+    if(!selectedKey || !current) return;
+    const isCorrect = selectedKey === current.correctKey;
+    const correctOp = current.ops.find(o=>o.key===current.correctKey);
+
+    feedbackPanel.classList.remove('correct','wrong');
+    feedbackPanel.classList.add('show', isCorrect ? 'correct' : 'wrong');
+    feedbackTitle.textContent = isCorrect ? 'ถูกต้องแล้ว 🙂' : 'ยังไม่ถูกต้อง ลองทบทวนอีกครั้ง';
+    feedbackAnswer.textContent = `คำตอบที่ถูกต้องคือ ${correctOp.sym} (${correctOp.name})`;
+    feedbackExplain.textContent = explainFor(current.correctKey, current.resultValue);
+
+    if(reasonText.value.trim().length>0){
+      feedbackHint.textContent = 'ลองเทียบเหตุผลที่คุณเขียนไว้ด้านบนกับคำอธิบายนี้ ว่าตรงประเด็นกันหรือไม่';
+    }else{
+      feedbackHint.textContent = 'ครั้งหน้าอย่าลืมเขียนเหตุผลประกอบคำตอบด้วยนะ';
+    }
+  }
+
+  function newPuzzle(){
+    current = buildPuzzle();
+    render(current);
+  }
+
+  submitBtn.addEventListener('click', checkAnswer);
+  newPuzzleBtn.addEventListener('click', newPuzzle);
+
+  newPuzzle();
+})();
+</script>
+
+</body>
+</html>
